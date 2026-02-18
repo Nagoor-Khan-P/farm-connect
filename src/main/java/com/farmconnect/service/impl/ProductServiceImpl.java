@@ -41,10 +41,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(Long id, Product product, Long farmerId) {
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new com.farmconnect.exception.ResourceNotFoundException("Product not found"));
 
         if (!existingProduct.getFarmer().getId().equals(farmerId)) {
-            throw new RuntimeException("Unauthorized: You are not the owner of this product");
+            throw new com.farmconnect.exception.UnauthorizedActionException(
+                    "Unauthorized: You are not the owner of this product");
         }
 
         existingProduct.setName(product.getName());
@@ -58,10 +59,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateStock(Long id, int quantity, Long farmerId) {
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new com.farmconnect.exception.ResourceNotFoundException("Product not found"));
 
         if (!existingProduct.getFarmer().getId().equals(farmerId)) {
-            throw new RuntimeException("Unauthorized: You are not the owner of this product");
+            throw new com.farmconnect.exception.UnauthorizedActionException(
+                    "Unauthorized: You are not the owner of this product");
         }
 
         existingProduct.setQuantity(existingProduct.getQuantity() + quantity);

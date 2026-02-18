@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order createOrder(Long productId, int quantity, User buyer) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new com.farmconnect.exception.ResourceNotFoundException("Product not found"));
 
         if (product.getQuantity() < quantity) {
             throw new OutOfStockException("Not enough stock for product: " + product.getName());

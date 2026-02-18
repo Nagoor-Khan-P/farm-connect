@@ -28,6 +28,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Not Found");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedActionException.class)
+    public ResponseEntity<?> handleUnauthorizedActionException(UnauthorizedActionException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Forbidden");
+        error.put("message", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(Exception ex) {
         Map<String, String> error = new HashMap<>();
