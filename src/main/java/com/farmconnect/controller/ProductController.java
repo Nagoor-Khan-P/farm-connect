@@ -48,4 +48,21 @@ public class ProductController {
 
         return ResponseEntity.ok(productService.addProduct(product, farmer));
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_FARMER')")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return ResponseEntity.ok(productService.updateProduct(id, product, userDetails.getId()));
+    }
+
+    @PatchMapping("/{id}/stock")
+    @PreAuthorize("hasAuthority('ROLE_FARMER')")
+    public ResponseEntity<?> updateStock(@PathVariable Long id, @RequestBody int quantity) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        productService.updateStock(id, quantity, userDetails.getId());
+        return ResponseEntity.ok("Stock updated successfully");
+    }
 }

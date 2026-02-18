@@ -1,5 +1,6 @@
 package com.farmconnect.service.impl;
 
+import com.farmconnect.exception.OutOfStockException;
 import com.farmconnect.model.Order;
 import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
@@ -30,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (product.getQuantity() < quantity) {
-            throw new RuntimeException("Not enough stock");
+            throw new OutOfStockException("Not enough stock for product: " + product.getName());
         }
 
         // Deduct stock

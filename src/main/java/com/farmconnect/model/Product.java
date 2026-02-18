@@ -29,4 +29,7 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farmer_id")
     private User farmer;
+
+    @Version
+    private Long version;
 }

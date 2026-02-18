@@ -13,4 +13,8 @@ public interface ProductService {
     List<Product> getAllProducts();
 
     Product getProductById(Long id);
+
+    Product updateProduct(Long id, Product product, Long farmerId);
+
+    void updateStock(Long id, int quantity, Long farmerId);
 }
