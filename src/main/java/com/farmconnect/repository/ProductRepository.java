@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import java.util.UUID;
+
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByFarmerId(Long farmerId);
+public interface ProductRepository extends JpaRepository<Product, UUID> {
+    List<Product> findByFarmerId(UUID farmerId);
 }

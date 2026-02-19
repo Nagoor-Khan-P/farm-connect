@@ -4,19 +4,20 @@ import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface ProductService {
     Product addProduct(Product product, User farmer);
 
-    List<Product> getProductsByFarmer(Long farmerId);
+    List<Product> getProductsByFarmer(UUID farmerId);
 
     List<Product> getAllProducts();
 
-    Product getProductById(Long id);
+    Product getProductById(UUID id);
 
-    Product updateProduct(Long id, Product product, Long farmerId);
+    Product updateProduct(UUID id, Product product, UUID farmerId);
 
-    void updateStock(Long id, int quantity, Long farmerId);
+    void updateStock(UUID id, int quantity, UUID farmerId);
 
-    void deleteProduct(Long id, Long farmerId);
+    void deleteProduct(UUID id, UUID farmerId);
 }

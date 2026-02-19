@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -71,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrdersByBuyer(Long buyerId) {
+    public List<Order> getOrdersByBuyer(UUID buyerId) {
         return orderRepository.findByBuyerId(buyerId);
     }
 }

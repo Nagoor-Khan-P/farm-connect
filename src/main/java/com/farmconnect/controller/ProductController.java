@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -50,7 +51,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<?> updateProduct(@PathVariable UUID id, @RequestBody Product product) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         return ResponseEntity.ok(productService.updateProduct(id, product, userDetails.getId()));
@@ -58,7 +59,7 @@ public class ProductController {
 
     @PatchMapping("/{id}/stock")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> updateStock(@PathVariable Long id, @RequestBody int quantity) {
+    public ResponseEntity<?> updateStock(@PathVariable UUID id, @RequestBody int quantity) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         productService.updateStock(id, quantity, userDetails.getId());
@@ -67,7 +68,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable UUID id) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         productService.deleteProduct(id, userDetails.getId());

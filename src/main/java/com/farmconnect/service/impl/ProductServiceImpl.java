@@ -9,6 +9,7 @@ import com.farmconnect.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -26,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getProductsByFarmer(Long farmerId) {
+    public List<Product> getProductsByFarmer(UUID farmerId) {
         return productRepository.findByFarmerId(farmerId);
     }
 
@@ -36,12 +37,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getProductById(Long id) {
+    public Product getProductById(UUID id) {
         return productRepository.findById(id).orElse(null);
     }
 
     @Override
-    public Product updateProduct(Long id, Product product, Long farmerId) {
+    public Product updateProduct(UUID id, Product product, UUID farmerId) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
@@ -59,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void updateStock(Long id, int quantity, Long farmerId) {
+    public void updateStock(UUID id, int quantity, UUID farmerId) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
@@ -73,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Long id, Long farmerId) {
+    public void deleteProduct(UUID id, UUID farmerId) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
