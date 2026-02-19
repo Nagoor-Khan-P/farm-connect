@@ -10,4 +10,6 @@ public interface OrderService {
     Order createOrder(com.farmconnect.payload.request.OrderRequest orderRequest, User buyer);
 
     List<Order> getOrdersByBuyer(UUID buyerId);
+
+    Order cancelOrder(UUID orderId);
 }

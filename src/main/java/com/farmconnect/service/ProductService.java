@@ -19,5 +19,7 @@ public interface ProductService {
 
     void updateStock(UUID id, int quantity, UUID farmerId);
 
+    void restoreStock(UUID id, int quantity);
+
     void deleteProduct(UUID id, UUID farmerId);
 }

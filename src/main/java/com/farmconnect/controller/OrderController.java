@@ -28,11 +28,18 @@ public class OrderController {
     }
 
     @GetMapping("/my-orders")
-    @PreAuthorize("hasAuthority('ROLE_BUYER')")
+    @PreAuthorize("hasRole('FARMER') or hasRole('BUYER')")
     public List<Order> getMyOrders() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         return orderService.getOrdersByBuyer(userDetails.getId());
+    }
+
+    @PutMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('FARMER') or hasRole('BUYER')")
+    public ResponseEntity<?> cancelOrder(@PathVariable UUID id) {
+        Order canceledOrder = orderService.cancelOrder(id);
+        return ResponseEntity.ok(canceledOrder);
     }
 
     @PostMapping

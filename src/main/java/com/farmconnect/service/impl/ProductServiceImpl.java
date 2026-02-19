@@ -74,6 +74,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public void restoreStock(UUID id, int quantity) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
+        productRepository.save(existingProduct);
+    }
+
+    @Override
     public void deleteProduct(UUID id, UUID farmerId) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
