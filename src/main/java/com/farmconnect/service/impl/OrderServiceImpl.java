@@ -53,24 +53,9 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Product not found with ID: " + itemRequest.getProductId()));
 
-            if (product.getQuantity() < itemRequest.getQuantity()) {
-                throw new OutOfStockException("Not enough stock for product: " + product.getName());
-            }
-
-            // Deduct stock
-            product.setQuantity(product.getQuantity() - itemRequest.getQuantity());
-            productRepository.save(product);
-
-            // Create OrderItem
-            OrderItem orderItem = OrderItem.builder()
-                    .order(order)
-                    .product(product)
-                    .quantity(itemRequest.getQuantity())
-                    .price(product.getPrice())
-                    .build();
-
+            OrderItem orderItem = processOrderItem(order, product, itemRequest.getQuantity(), product.getPrice());
             orderItems.add(orderItem);
-            totalOrderPrice += product.getPrice() * itemRequest.getQuantity();
+            totalOrderPrice += orderItem.getPrice() * orderItem.getQuantity();
         }
 
         order.setItems(orderItems);
@@ -125,25 +110,10 @@ public class OrderServiceImpl implements OrderService {
         double totalOrderPrice = 0;
 
         for (com.farmconnect.model.CartItem cartItem : cart.getItems()) {
-            Product product = cartItem.getProduct();
-
-            if (product.getQuantity() < cartItem.getQuantity()) {
-                throw new OutOfStockException("Not enough stock for product: " + product.getName());
-            }
-
-            // Deduct stock
-            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
-            productRepository.save(product);
-
-            OrderItem orderItem = OrderItem.builder()
-                    .order(order)
-                    .product(product)
-                    .quantity(cartItem.getQuantity())
-                    .price(cartItem.getPrice())
-                    .build();
-
+            OrderItem orderItem = processOrderItem(order, cartItem.getProduct(), cartItem.getQuantity(),
+                    cartItem.getPrice());
             orderItems.add(orderItem);
-            totalOrderPrice += cartItem.getPrice() * cartItem.getQuantity();
+            totalOrderPrice += orderItem.getPrice() * orderItem.getQuantity();
         }
 
         order.setItems(orderItems);
@@ -157,5 +127,22 @@ public class OrderServiceImpl implements OrderService {
         cartRepository.save(cart);
 
         return savedOrder;
+    }
+
+    private OrderItem processOrderItem(Order order, Product product, int quantity, double price) {
+        if (product.getQuantity() < quantity) {
+            throw new OutOfStockException("Not enough stock for product: " + product.getName());
+        }
+
+        // Deduct stock
+        product.setQuantity(product.getQuantity() - quantity);
+        productRepository.save(product);
+
+        return OrderItem.builder()
+                .order(order)
+                .product(product)
+                .quantity(quantity)
+                .price(price)
+                .build();
     }
 }
