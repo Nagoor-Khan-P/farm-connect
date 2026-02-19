@@ -51,6 +51,8 @@ public class AuthServiceImpl implements AuthService {
         return new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
+                userDetails.getFirstName(),
+                userDetails.getLastName(),
                 userDetails.getEmail(),
                 roles);
     }
@@ -68,6 +70,8 @@ public class AuthServiceImpl implements AuthService {
         // Create new user's account
         User user = User.builder()
                 .username(signupRequest.getUsername())
+                .firstName(signupRequest.getFirstName())
+                .lastName(signupRequest.getLastName())
                 .email(signupRequest.getEmail())
                 .password(encoder.encode(signupRequest.getPassword()))
                 .role(signupRequest.getRole())

@@ -25,6 +25,10 @@ public class User {
 
     private String username;
 
+    private String firstName;
+
+    private String lastName;
+
     private String email;
 
     @com.fasterxml.jackson.annotation.JsonIgnore
