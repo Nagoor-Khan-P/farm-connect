@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
         order.setBuyer(buyer);
         order.setOrderDate(LocalDateTime.now());
 
-        List<com.farmconnect.model.OrderItem> orderItems = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
         double totalOrderPrice = 0;
 
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {

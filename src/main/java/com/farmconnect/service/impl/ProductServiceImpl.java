@@ -1,5 +1,7 @@
 package com.farmconnect.service.impl;
 
+import com.farmconnect.exception.ResourceNotFoundException;
+import com.farmconnect.exception.UnauthorizedActionException;
 import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
 import com.farmconnect.repository.ProductRepository;
@@ -41,10 +43,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(Long id, Product product, Long farmerId) {
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new com.farmconnect.exception.ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (!existingProduct.getFarmer().getId().equals(farmerId)) {
-            throw new com.farmconnect.exception.UnauthorizedActionException(
+            throw new UnauthorizedActionException(
                     "Unauthorized: You are not the owner of this product");
         }
 
@@ -59,14 +61,27 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void updateStock(Long id, int quantity, Long farmerId) {
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new com.farmconnect.exception.ResourceNotFoundException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (!existingProduct.getFarmer().getId().equals(farmerId)) {
-            throw new com.farmconnect.exception.UnauthorizedActionException(
+            throw new UnauthorizedActionException(
                     "Unauthorized: You are not the owner of this product");
         }
 
         existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
         productRepository.save(existingProduct);
+    }
+
+    @Override
+    public void deleteProduct(Long id, Long farmerId) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (!existingProduct.getFarmer().getId().equals(farmerId)) {
+            throw new UnauthorizedActionException(
+                    "Unauthorized: You are not the owner of this product");
+        }
+
+        productRepository.delete(existingProduct);
     }
 }

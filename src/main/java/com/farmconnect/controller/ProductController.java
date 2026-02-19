@@ -7,7 +7,6 @@ import com.farmconnect.service.ProductService;
 import com.farmconnect.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,5 +63,14 @@ public class ProductController {
                 .getPrincipal();
         productService.updateStock(id, quantity, userDetails.getId());
         return ResponseEntity.ok("Stock updated successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_FARMER')")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        productService.deleteProduct(id, userDetails.getId());
+        return ResponseEntity.ok("Product deleted successfully");
     }
 }
