@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -27,12 +28,14 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ProductService productService;
+    private final com.farmconnect.repository.CartRepository cartRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository,
-            ProductService productService) {
+            ProductService productService, com.farmconnect.repository.CartRepository cartRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.productService = productService;
+        this.cartRepository = cartRepository;
     }
 
     @Override
@@ -101,5 +104,58 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order createOrderFromCart(User buyer) {
+        com.farmconnect.model.Cart cart = cartRepository.findByUserId(buyer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+
+        Order order = new Order();
+        order.setBuyer(buyer);
+        order.setOrderDate(LocalDateTime.now());
+        order.setStatus(OrderStatus.PENDING);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        double totalOrderPrice = 0;
+
+        for (com.farmconnect.model.CartItem cartItem : cart.getItems()) {
+            Product product = cartItem.getProduct();
+
+            if (product.getQuantity() < cartItem.getQuantity()) {
+                throw new OutOfStockException("Not enough stock for product: " + product.getName());
+            }
+
+            // Deduct stock
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+            productRepository.save(product);
+
+            OrderItem orderItem = OrderItem.builder()
+                    .order(order)
+                    .product(product)
+                    .quantity(cartItem.getQuantity())
+                    .price(cartItem.getPrice())
+                    .build();
+
+            orderItems.add(orderItem);
+            totalOrderPrice += cartItem.getPrice() * cartItem.getQuantity();
+        }
+
+        order.setItems(orderItems);
+        order.setTotalPrice(totalOrderPrice);
+
+        Order savedOrder = orderRepository.save(order);
+
+        // Clear cart
+        cart.getItems().clear();
+        cart.setTotalPrice(0);
+        cartRepository.save(cart);
+
+        return savedOrder;
     }
 }

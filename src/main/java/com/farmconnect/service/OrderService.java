@@ -12,4 +12,6 @@ public interface OrderService {
     List<Order> getOrdersByBuyer(UUID buyerId);
 
     Order cancelOrder(UUID orderId);
+
+    Order createOrderFromCart(User buyer);
 }
