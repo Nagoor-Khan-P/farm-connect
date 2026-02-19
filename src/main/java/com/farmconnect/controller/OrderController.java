@@ -42,7 +42,7 @@ public class OrderController {
         User buyer = userRepository.findById(userDetails.getId()).orElse(null);
 
         try {
-            Order order = orderService.createOrder(orderRequest.getProductId(), orderRequest.getQuantity(), buyer);
+            Order order = orderService.createOrder(orderRequest, buyer);
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

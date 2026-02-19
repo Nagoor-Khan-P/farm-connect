@@ -6,7 +6,7 @@ import com.farmconnect.model.User;
 import java.util.List;
 
 public interface OrderService {
-    Order createOrder(Long productId, int quantity, User buyer);
+    Order createOrder(com.farmconnect.payload.request.OrderRequest orderRequest, User buyer);
 
     List<Order> getOrdersByBuyer(Long buyerId);
 }
