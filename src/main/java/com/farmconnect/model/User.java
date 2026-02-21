@@ -36,4 +36,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToOne(mappedBy = "farmer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Farm farm;
 }

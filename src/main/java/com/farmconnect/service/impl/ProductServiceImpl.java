@@ -15,13 +15,18 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final com.farmconnect.service.FarmService farmService;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, com.farmconnect.service.FarmService farmService) {
         this.productRepository = productRepository;
+        this.farmService = farmService;
     }
 
     @Override
     public Product addProduct(Product product, User farmer) {
+        if (!farmService.hasFarm(farmer.getId())) {
+            throw new UnauthorizedActionException("You must register your farm details before adding products");
+        }
         product.setFarmer(farmer);
         return productRepository.save(product);
     }
