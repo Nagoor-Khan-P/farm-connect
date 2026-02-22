@@ -34,9 +34,12 @@ public class ProductController {
 
     @GetMapping("/my-products")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public List<Product> getMyProducts() {
+    public List<Product> getMyProducts(@RequestParam(required = false) UUID farmId) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
+        if (farmId != null) {
+            return productService.getProductsByFarm(farmId);
+        }
         return productService.getProductsByFarmer(userDetails.getId());
     }
 
@@ -56,7 +59,7 @@ public class ProductController {
                 .quantity(productRequest.getQuantity())
                 .build();
 
-        return ResponseEntity.ok(productService.addProduct(product, farmer));
+        return ResponseEntity.ok(productService.addProduct(product, productRequest.getFarmId(), farmer));
     }
 
     @PutMapping("/{id}")

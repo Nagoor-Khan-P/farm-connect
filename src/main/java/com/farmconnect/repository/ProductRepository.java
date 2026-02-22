@@ -10,5 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
-    List<Product> findByFarmerId(UUID farmerId);
+    List<Product> findByFarmFarmerId(UUID farmerId);
+
+    List<Product> findByFarmId(UUID farmId);
 }

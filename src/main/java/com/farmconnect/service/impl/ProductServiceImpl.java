@@ -4,6 +4,8 @@ import com.farmconnect.exception.ResourceNotFoundException;
 import com.farmconnect.exception.UnauthorizedActionException;
 import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
+import com.farmconnect.model.Farm;
+import com.farmconnect.repository.FarmRepository;
 import com.farmconnect.repository.ProductRepository;
 import com.farmconnect.service.ProductService;
 import org.springframework.stereotype.Service;
@@ -15,25 +17,34 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final com.farmconnect.service.FarmService farmService;
+    private final FarmRepository farmRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, com.farmconnect.service.FarmService farmService) {
+    public ProductServiceImpl(ProductRepository productRepository, FarmRepository farmRepository) {
         this.productRepository = productRepository;
-        this.farmService = farmService;
+        this.farmRepository = farmRepository;
     }
 
     @Override
-    public Product addProduct(Product product, User farmer) {
-        if (!farmService.hasFarm(farmer.getId())) {
-            throw new UnauthorizedActionException("You must register your farm details before adding products");
+    public Product addProduct(Product product, java.util.UUID farmId, User farmer) {
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
+
+        if (!farm.getFarmer().getId().equals(farmer.getId())) {
+            throw new UnauthorizedActionException("You do not own this farm");
         }
-        product.setFarmer(farmer);
+
+        product.setFarm(farm);
         return productRepository.save(product);
     }
 
     @Override
+    public List<Product> getProductsByFarm(UUID farmId) {
+        return productRepository.findByFarmId(farmId);
+    }
+
+    @Override
     public List<Product> getProductsByFarmer(UUID farmerId) {
-        return productRepository.findByFarmerId(farmerId);
+        return productRepository.findByFarmFarmerId(farmerId);
     }
 
     @Override
@@ -51,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (!existingProduct.getFarmer().getId().equals(farmerId)) {
+        if (!existingProduct.getFarm().getFarmer().getId().equals(farmerId)) {
             throw new UnauthorizedActionException(
                     "Unauthorized: You are not the owner of this product");
         }
@@ -71,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (!existingProduct.getFarmer().getId().equals(farmerId)) {
+        if (!existingProduct.getFarm().getFarmer().getId().equals(farmerId)) {
             throw new UnauthorizedActionException(
                     "Unauthorized: You are not the owner of this product");
         }
@@ -94,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (!existingProduct.getFarmer().getId().equals(farmerId)) {
+        if (!existingProduct.getFarm().getFarmer().getId().equals(farmerId)) {
             throw new UnauthorizedActionException(
                     "Unauthorized: You are not the owner of this product");
         }

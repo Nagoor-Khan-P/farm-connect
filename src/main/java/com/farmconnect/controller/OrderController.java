@@ -1,6 +1,7 @@
 package com.farmconnect.controller;
 
 import com.farmconnect.model.Order;
+import com.farmconnect.model.OrderItem;
 import com.farmconnect.model.User;
 import com.farmconnect.payload.request.OrderRequest;
 import com.farmconnect.security.services.UserDetailsImpl;
@@ -11,8 +12,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -33,6 +37,14 @@ public class OrderController {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         return orderService.getOrdersByBuyer(userDetails.getId());
+    }
+
+    @GetMapping("/my-sales")
+    @PreAuthorize("hasRole('FARMER')")
+    public List<OrderItem> getMySales() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return orderService.getSalesByFarmer(userDetails.getId());
     }
 
     @PutMapping("/{id}/cancel")

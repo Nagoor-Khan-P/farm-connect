@@ -26,8 +26,8 @@ public class Product {
     private int quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id")
-    private User farmer;
+    @JoinColumn(name = "farm_id")
+    private Farm farm;
 
     @Version
     private Long version;

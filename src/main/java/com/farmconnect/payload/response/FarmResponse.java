@@ -1,5 +1,6 @@
 package com.farmconnect.payload.response;
 
+import com.farmconnect.model.Address;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.UUID;
 public class FarmResponse {
     private UUID id;
     private String name;
-    private String address;
+    private Address address;
     private String description;
     private String farmerUsername;
 }

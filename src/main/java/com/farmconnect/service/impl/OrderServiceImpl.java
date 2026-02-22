@@ -9,6 +9,7 @@ import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
 import com.farmconnect.payload.request.OrderItemRequest;
 import com.farmconnect.payload.request.OrderRequest;
+import com.farmconnect.repository.OrderItemRepository;
 import com.farmconnect.repository.OrderRepository;
 import com.farmconnect.repository.ProductRepository;
 import com.farmconnect.service.OrderService;
@@ -29,13 +30,16 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final com.farmconnect.repository.CartRepository cartRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository,
-            ProductService productService, com.farmconnect.repository.CartRepository cartRepository) {
+            ProductService productService, com.farmconnect.repository.CartRepository cartRepository,
+            OrderItemRepository orderItemRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.productService = productService;
         this.cartRepository = cartRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Override
@@ -144,5 +148,10 @@ public class OrderServiceImpl implements OrderService {
                 .quantity(quantity)
                 .price(price)
                 .build();
+    }
+
+    @Override
+    public List<OrderItem> getSalesByFarmer(UUID farmerId) {
+        return orderItemRepository.findByProductFarmFarmerId(farmerId);
     }
 }

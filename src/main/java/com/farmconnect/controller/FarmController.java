@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -39,23 +40,33 @@ public class FarmController {
         return ResponseEntity.ok(farmService.registerFarm(farmRequest, farmer));
     }
 
-    @GetMapping("/my-farm")
+    @GetMapping("/my-farms")
     @PreAuthorize("hasRole('FARMER')")
-    public ResponseEntity<FarmResponse> getMyFarm(
+    public ResponseEntity<java.util.List<FarmResponse>> getMyFarms(
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(farmService.getFarmByFarmer(userDetails.getId()));
+        return ResponseEntity.ok(farmService.getFarmsByFarmer(userDetails.getId()));
     }
 
-    @PutMapping("/my-farm")
+    @PutMapping("/{farmId}")
     @PreAuthorize("hasRole('FARMER')")
     public ResponseEntity<FarmResponse> updateMyFarm(
+            @PathVariable UUID farmId,
             @Valid @RequestBody FarmRequest farmRequest,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(farmService.updateFarm(farmRequest, userDetails.getId()));
+        return ResponseEntity.ok(farmService.updateFarm(farmId, farmRequest, userDetails.getId()));
+    }
+
+    @DeleteMapping("/{farmId}")
+    @PreAuthorize("hasRole('FARMER')")
+    public ResponseEntity<?> deleteMyFarm(
+            @PathVariable UUID farmId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        farmService.deleteFarm(farmId, userDetails.getId());
+        return ResponseEntity.ok(new com.farmconnect.payload.response.MessageResponse("Farm deleted successfully!"));
     }
 
     @GetMapping("/farmer/{farmerId}")
-    public ResponseEntity<FarmResponse> getFarmByFarmer(@PathVariable UUID farmerId) {
-        return ResponseEntity.ok(farmService.getFarmByFarmer(farmerId));
+    public ResponseEntity<List<FarmResponse>> getFarmsByFarmer(@PathVariable UUID farmerId) {
+        return ResponseEntity.ok(farmService.getFarmsByFarmer(farmerId));
     }
 }

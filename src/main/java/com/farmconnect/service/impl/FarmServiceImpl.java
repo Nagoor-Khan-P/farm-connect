@@ -2,6 +2,7 @@ package com.farmconnect.service.impl;
 
 import com.farmconnect.exception.ResourceNotFoundException;
 import com.farmconnect.exception.UnauthorizedActionException;
+import com.farmconnect.model.Address;
 import com.farmconnect.model.Farm;
 import com.farmconnect.model.User;
 import com.farmconnect.repository.FarmRepository;
@@ -10,6 +11,7 @@ import com.farmconnect.payload.request.FarmRequest;
 import com.farmconnect.payload.response.FarmResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,10 +25,7 @@ public class FarmServiceImpl implements FarmService {
 
     @Override
     public FarmResponse registerFarm(FarmRequest farmRequest, User farmer) {
-        if (farmRepository.existsByFarmerId(farmer.getId())) {
-            throw new UnauthorizedActionException("Farmer already has a registered farm");
-        }
-
+        // Removed check for single farm to allow multiple farms
         Farm farm = Farm.builder()
                 .name(farmRequest.getName())
                 .address(farmRequest.getAddress())
@@ -39,16 +38,20 @@ public class FarmServiceImpl implements FarmService {
     }
 
     @Override
-    public FarmResponse getFarmByFarmer(UUID farmerId) {
-        Farm farm = farmRepository.findByFarmerId(farmerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Farm not found for this farmer"));
-        return mapToResponse(farm);
+    public List<FarmResponse> getFarmsByFarmer(UUID farmerId) {
+        return farmRepository.findByFarmerId(farmerId).stream()
+                .map(this::mapToResponse)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
-    public FarmResponse updateFarm(FarmRequest farmRequest, UUID farmerId) {
-        Farm farm = farmRepository.findByFarmerId(farmerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Farm not found for this farmer"));
+    public FarmResponse updateFarm(UUID farmId, FarmRequest farmRequest, UUID farmerId) {
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
+
+        if (!farm.getFarmer().getId().equals(farmerId)) {
+            throw new UnauthorizedActionException("You are not authorized to update this farm");
+        }
 
         farm.setName(farmRequest.getName());
         farm.setAddress(farmRequest.getAddress());
@@ -59,8 +62,20 @@ public class FarmServiceImpl implements FarmService {
     }
 
     @Override
+    public void deleteFarm(UUID farmId, UUID farmerId) {
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
+
+        if (!farm.getFarmer().getId().equals(farmerId)) {
+            throw new UnauthorizedActionException("You are not authorized to delete this farm");
+        }
+
+        farmRepository.delete(farm);
+    }
+
+    @Override
     public boolean hasFarm(UUID farmerId) {
-        return farmRepository.existsByFarmerId(farmerId);
+        return !farmRepository.findByFarmerId(farmerId).isEmpty();
     }
 
     private FarmResponse mapToResponse(Farm farm) {

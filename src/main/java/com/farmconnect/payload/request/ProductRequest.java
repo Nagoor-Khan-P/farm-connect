@@ -23,4 +23,7 @@ public class ProductRequest {
     private int quantity;
 
     private String description;
+
+    @jakarta.validation.constraints.NotNull
+    private java.util.UUID farmId;
 }

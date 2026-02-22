@@ -14,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "farms")
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Farm {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,13 +23,13 @@ public class Farm {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String address;
+    @Embedded
+    private Address address;
 
     private String description;
 
     @com.fasterxml.jackson.annotation.JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "farmer_id", nullable = false)
     private User farmer;
 }
