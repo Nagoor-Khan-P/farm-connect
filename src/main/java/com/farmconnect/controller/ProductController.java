@@ -2,6 +2,7 @@ package com.farmconnect.controller;
 
 import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
+import com.farmconnect.payload.request.ProductRequest;
 import com.farmconnect.security.services.UserDetailsImpl;
 import com.farmconnect.service.ProductService;
 import com.farmconnect.repository.UserRepository;
@@ -41,19 +42,39 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) {
+    public ResponseEntity<?> addProduct(@jakarta.validation.Valid @RequestBody ProductRequest productRequest) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        User farmer = userRepository.findById(userDetails.getId()).orElse(null); // Should not be null if authenticated
+        User farmer = userRepository.findById(userDetails.getId()).orElse(null);
+
+        Product product = Product.builder()
+                .name(productRequest.getName())
+                .category(productRequest.getCategory())
+                .description(productRequest.getDescription())
+                .price(productRequest.getPrice())
+                .unit(productRequest.getUnit())
+                .quantity(productRequest.getQuantity())
+                .build();
 
         return ResponseEntity.ok(productService.addProduct(product, farmer));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> updateProduct(@PathVariable UUID id, @RequestBody Product product) {
+    public ResponseEntity<?> updateProduct(@PathVariable UUID id,
+            @jakarta.validation.Valid @RequestBody ProductRequest productRequest) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
+
+        Product product = Product.builder()
+                .name(productRequest.getName())
+                .category(productRequest.getCategory())
+                .description(productRequest.getDescription())
+                .price(productRequest.getPrice())
+                .unit(productRequest.getUnit())
+                .quantity(productRequest.getQuantity())
+                .build();
+
         return ResponseEntity.ok(productService.updateProduct(id, product, userDetails.getId()));
     }
 

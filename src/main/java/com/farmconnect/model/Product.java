@@ -19,11 +19,10 @@ public class Product {
     private java.util.UUID id;
 
     private String name;
-
+    private String category;
     private String description;
-
     private double price;
-
+    private String unit;
     private int quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
