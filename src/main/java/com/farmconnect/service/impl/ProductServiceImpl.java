@@ -34,6 +34,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse addProduct(ProductRequest productRequest, MultipartFile image, User farmer) {
+        if (productRequest.getFarmId() == null) {
+            throw new RuntimeException("Farm ID is required for adding a product");
+        }
         Farm farm = farmRepository.findById(productRequest.getFarmId())
                 .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
 

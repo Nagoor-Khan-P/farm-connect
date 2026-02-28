@@ -24,6 +24,5 @@ public class ProductRequest {
 
     private String description;
 
-    @jakarta.validation.constraints.NotNull
     private java.util.UUID farmId;
 }
