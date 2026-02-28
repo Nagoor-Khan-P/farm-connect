@@ -9,7 +9,9 @@ import com.farmconnect.repository.FarmRepository;
 import com.farmconnect.service.FarmService;
 import com.farmconnect.payload.request.FarmRequest;
 import com.farmconnect.payload.response.FarmResponse;
+import com.farmconnect.service.FileStorageService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,19 +20,27 @@ import java.util.UUID;
 public class FarmServiceImpl implements FarmService {
 
     private final FarmRepository farmRepository;
+    private final FileStorageService fileStorageService;
 
-    public FarmServiceImpl(FarmRepository farmRepository) {
+    public FarmServiceImpl(FarmRepository farmRepository, FileStorageService fileStorageService) {
         this.farmRepository = farmRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override
-    public FarmResponse registerFarm(FarmRequest farmRequest, User farmer) {
+    public FarmResponse registerFarm(FarmRequest farmRequest, User farmer, MultipartFile image) {
         // Removed check for single farm to allow multiple farms
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            imageUrl = fileStorageService.saveFile(image, "farms");
+        }
+
         Farm farm = Farm.builder()
                 .name(farmRequest.getName())
                 .address(farmRequest.getAddress())
                 .description(farmRequest.getDescription())
                 .farmer(farmer)
+                .imageUrl(imageUrl)
                 .build();
 
         Farm savedFarm = farmRepository.save(farm);
@@ -45,12 +55,17 @@ public class FarmServiceImpl implements FarmService {
     }
 
     @Override
-    public FarmResponse updateFarm(UUID farmId, FarmRequest farmRequest, UUID farmerId) {
+    public FarmResponse updateFarm(UUID farmId, FarmRequest farmRequest, UUID farmerId, MultipartFile image) {
         Farm farm = farmRepository.findById(farmId)
                 .orElseThrow(() -> new ResourceNotFoundException("Farm not found"));
 
         if (!farm.getFarmer().getId().equals(farmerId)) {
             throw new UnauthorizedActionException("You are not authorized to update this farm");
+        }
+
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = fileStorageService.saveFile(image, "farms");
+            farm.setImageUrl(imageUrl);
         }
 
         farm.setName(farmRequest.getName());
@@ -85,6 +100,7 @@ public class FarmServiceImpl implements FarmService {
                 .address(farm.getAddress())
                 .description(farm.getDescription())
                 .farmerUsername(farm.getFarmer().getUsername())
+                .imageUrl(farm.getImageUrl())
                 .build();
     }
 }

@@ -27,6 +27,7 @@ public class Farm {
     private Address address;
 
     private String description;
+    private String imageUrl;
 
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

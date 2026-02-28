@@ -1,24 +1,25 @@
 package com.farmconnect.service;
 
-import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
-import com.farmconnect.model.Farm;
+import com.farmconnect.payload.request.ProductRequest;
+import com.farmconnect.payload.response.ProductResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
-    Product addProduct(Product product, java.util.UUID farmId, User farmer);
+    ProductResponse addProduct(ProductRequest productRequest, MultipartFile image, User farmer);
 
-    List<Product> getProductsByFarm(UUID farmId);
+    List<ProductResponse> getProductsByFarm(UUID farmId);
 
-    List<Product> getProductsByFarmer(UUID farmerId);
+    List<ProductResponse> getProductsByFarmer(UUID farmerId);
 
-    List<Product> getAllProducts();
+    List<ProductResponse> getAllProducts();
 
-    Product getProductById(UUID id);
+    ProductResponse getProductById(UUID id);
 
-    Product updateProduct(UUID id, Product product, UUID farmerId);
+    ProductResponse updateProduct(UUID id, ProductRequest productRequest, UUID farmerId, MultipartFile image);
 
     void updateStock(UUID id, int quantity, UUID farmerId);
 

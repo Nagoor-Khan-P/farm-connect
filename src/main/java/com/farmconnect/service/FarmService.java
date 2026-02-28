@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface FarmService {
-    FarmResponse registerFarm(FarmRequest farmRequest, User farmer);
+    FarmResponse registerFarm(FarmRequest farmRequest, User farmer,
+            org.springframework.web.multipart.MultipartFile image);
 
     List<FarmResponse> getFarmsByFarmer(UUID farmerId);
 
-    FarmResponse updateFarm(UUID farmId, FarmRequest farmRequest, UUID farmerId);
+    FarmResponse updateFarm(UUID farmId, FarmRequest farmRequest, UUID farmerId,
+            org.springframework.web.multipart.MultipartFile image);
 
     void deleteFarm(UUID farmId, UUID farmerId);
 

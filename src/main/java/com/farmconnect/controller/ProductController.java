@@ -1,10 +1,11 @@
 package com.farmconnect.controller;
 
-import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
 import com.farmconnect.payload.request.ProductRequest;
+import com.farmconnect.payload.response.ProductResponse;
 import com.farmconnect.security.services.UserDetailsImpl;
 import com.farmconnect.service.ProductService;
+import org.springframework.web.multipart.MultipartFile;
 import com.farmconnect.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,13 +29,13 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
+    public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
 
     @GetMapping("/my-products")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public List<Product> getMyProducts(@RequestParam(required = false) UUID farmId) {
+    public List<ProductResponse> getMyProducts(@RequestParam(required = false) UUID farmId) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         if (farmId != null) {
@@ -43,42 +44,28 @@ public class ProductController {
         return productService.getProductsByFarmer(userDetails.getId());
     }
 
-    @PostMapping
+    @PostMapping(consumes = { "multipart/form-data" })
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> addProduct(@jakarta.validation.Valid @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> addProduct(
+            @RequestPart("product") @jakarta.validation.Valid ProductRequest productRequest,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         User farmer = userRepository.findById(userDetails.getId()).orElse(null);
 
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .category(productRequest.getCategory())
-                .description(productRequest.getDescription())
-                .price(productRequest.getPrice())
-                .unit(productRequest.getUnit())
-                .quantity(productRequest.getQuantity())
-                .build();
-
-        return ResponseEntity.ok(productService.addProduct(product, productRequest.getFarmId(), farmer));
+        return ResponseEntity.ok(productService.addProduct(productRequest, image, farmer));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = { "multipart/form-data" })
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
-    public ResponseEntity<?> updateProduct(@PathVariable UUID id,
-            @jakarta.validation.Valid @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable UUID id,
+            @RequestPart("product") @jakarta.validation.Valid ProductRequest productRequest,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
 
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .category(productRequest.getCategory())
-                .description(productRequest.getDescription())
-                .price(productRequest.getPrice())
-                .unit(productRequest.getUnit())
-                .quantity(productRequest.getQuantity())
-                .build();
-
-        return ResponseEntity.ok(productService.updateProduct(id, product, userDetails.getId()));
+        return ResponseEntity.ok(productService.updateProduct(id, productRequest, userDetails.getId(), image));
     }
 
     @PatchMapping("/{id}/stock")

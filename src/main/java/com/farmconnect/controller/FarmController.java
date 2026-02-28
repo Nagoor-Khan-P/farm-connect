@@ -28,16 +28,17 @@ public class FarmController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register", consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('FARMER')")
     public ResponseEntity<FarmResponse> registerFarm(
-            @Valid @RequestBody FarmRequest farmRequest,
+            @RequestPart("farm") @Valid FarmRequest farmRequest,
+            @RequestPart(value = "image", required = false) org.springframework.web.multipart.MultipartFile image,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         User farmer = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Error: User not found."));
 
-        return ResponseEntity.ok(farmService.registerFarm(farmRequest, farmer));
+        return ResponseEntity.ok(farmService.registerFarm(farmRequest, farmer, image));
     }
 
     @GetMapping("/my-farms")
@@ -47,13 +48,14 @@ public class FarmController {
         return ResponseEntity.ok(farmService.getFarmsByFarmer(userDetails.getId()));
     }
 
-    @PutMapping("/{farmId}")
+    @PutMapping(value = "/{farmId}", consumes = { "multipart/form-data" })
     @PreAuthorize("hasRole('FARMER')")
     public ResponseEntity<FarmResponse> updateMyFarm(
             @PathVariable UUID farmId,
-            @Valid @RequestBody FarmRequest farmRequest,
+            @RequestPart("farm") @Valid FarmRequest farmRequest,
+            @RequestPart(value = "image", required = false) org.springframework.web.multipart.MultipartFile image,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ResponseEntity.ok(farmService.updateFarm(farmId, farmRequest, userDetails.getId()));
+        return ResponseEntity.ok(farmService.updateFarm(farmId, farmRequest, userDetails.getId(), image));
     }
 
     @DeleteMapping("/{farmId}")

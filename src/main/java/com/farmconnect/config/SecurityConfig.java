@@ -63,8 +63,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
-                        .requestMatchers("/api/products").permitAll() // Allow viewing products (maybe filter by GET vs
-                                                                      // POST later)
+                        .requestMatchers("/api/products").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
+                        // POST later)
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated());
