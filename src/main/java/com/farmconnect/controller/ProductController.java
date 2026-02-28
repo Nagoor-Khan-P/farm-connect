@@ -33,6 +33,11 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
     @GetMapping("/my-products")
     @PreAuthorize("hasAuthority('ROLE_FARMER')")
     public List<ProductResponse> getMyProducts(@RequestParam(required = false) UUID farmId) {
