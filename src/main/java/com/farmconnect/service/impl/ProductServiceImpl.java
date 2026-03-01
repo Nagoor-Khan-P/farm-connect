@@ -161,6 +161,8 @@ public class ProductServiceImpl implements ProductService {
         response.setQuantity(product.getQuantity());
         response.setFarmId(product.getFarm().getId());
         response.setFarmName(product.getFarm().getName());
+        User farmer = product.getFarm().getFarmer();
+        response.setFarmerName(farmer.getFirstName() + " " + farmer.getLastName());
         response.setImageUrl(product.getImageUrl());
         return response;
     }

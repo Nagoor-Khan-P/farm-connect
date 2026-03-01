@@ -22,4 +22,5 @@ public class ProductResponse {
     private String imageUrl;
     private UUID farmId;
     private String farmName;
+    private String farmerName;
 }

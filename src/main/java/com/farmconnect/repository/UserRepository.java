@@ -15,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Boolean existsByUsername(String username);
 
     Boolean existsByEmail(String email);
+
+    java.util.List<com.farmconnect.model.User> findByRole(com.farmconnect.model.Role role);
 }
