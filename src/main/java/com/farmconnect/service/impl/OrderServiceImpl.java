@@ -44,8 +44,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getOrdersByBuyer(UUID buyerId) {
-        return orderRepository.findByBuyerId(buyerId);
+    public List<Order> getActiveOrders(UUID buyerId) {
+        return orderRepository.findByBuyerIdAndStatusIn(buyerId,
+                List.of(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.SHIPPED));
+    }
+
+    @Override
+    public List<Order> getOrderHistory(UUID buyerId) {
+        return orderRepository.findByBuyerIdAndStatusIn(buyerId,
+                List.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED));
     }
 
     @Override

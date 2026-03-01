@@ -30,12 +30,20 @@ public class OrderController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/my-orders")
+    @GetMapping("/active")
     @PreAuthorize("hasRole('FARMER') or hasRole('BUYER')")
-    public List<Order> getMyOrders() {
+    public List<Order> getActiveOrders() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
-        return orderService.getOrdersByBuyer(userDetails.getId());
+        return orderService.getActiveOrders(userDetails.getId());
+    }
+
+    @GetMapping("/history")
+    @PreAuthorize("hasRole('FARMER') or hasRole('BUYER')")
+    public List<Order> getOrderHistory() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return orderService.getOrderHistory(userDetails.getId());
     }
 
     @GetMapping("/my-sales")
