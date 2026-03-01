@@ -8,7 +8,6 @@ import com.farmconnect.model.OrderStatus;
 import com.farmconnect.model.Product;
 import com.farmconnect.model.User;
 import com.farmconnect.payload.request.OrderItemRequest;
-import com.farmconnect.payload.request.OrderRequest;
 import com.farmconnect.repository.OrderItemRepository;
 import com.farmconnect.repository.OrderRepository;
 import com.farmconnect.repository.ProductRepository;
@@ -31,41 +30,17 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final com.farmconnect.repository.CartRepository cartRepository;
     private final OrderItemRepository orderItemRepository;
+    private final com.farmconnect.repository.AddressRepository addressRepository;
 
     public OrderServiceImpl(OrderRepository orderRepository, ProductRepository productRepository,
             ProductService productService, com.farmconnect.repository.CartRepository cartRepository,
-            OrderItemRepository orderItemRepository) {
+            OrderItemRepository orderItemRepository, com.farmconnect.repository.AddressRepository addressRepository) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.productService = productService;
         this.cartRepository = cartRepository;
         this.orderItemRepository = orderItemRepository;
-    }
-
-    @Override
-    @Transactional
-    public Order createOrder(OrderRequest orderRequest, User buyer) {
-        Order order = new Order();
-        order.setBuyer(buyer);
-        order.setOrderDate(LocalDateTime.now());
-
-        List<OrderItem> orderItems = new ArrayList<>();
-        double totalOrderPrice = 0;
-
-        for (OrderItemRequest itemRequest : orderRequest.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Product not found with ID: " + itemRequest.getProductId()));
-
-            OrderItem orderItem = processOrderItem(order, product, itemRequest.getQuantity(), product.getPrice());
-            orderItems.add(orderItem);
-            totalOrderPrice += orderItem.getPrice() * orderItem.getQuantity();
-        }
-
-        order.setItems(orderItems);
-        order.setTotalPrice(totalOrderPrice);
-
-        return orderRepository.save(order);
+        this.addressRepository = addressRepository;
     }
 
     @Override
@@ -97,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrderFromCart(User buyer) {
+    public Order createOrderFromCart(User buyer, com.farmconnect.payload.request.CheckoutRequest checkoutRequest) {
         com.farmconnect.model.Cart cart = cartRepository.findByUserId(buyer.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
@@ -109,6 +84,9 @@ public class OrderServiceImpl implements OrderService {
         order.setBuyer(buyer);
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
+
+        // Set shipping address
+        setShippingAddress(order, buyer, checkoutRequest.getAddressId(), null);
 
         List<OrderItem> orderItems = new ArrayList<>();
         double totalOrderPrice = 0;
@@ -131,6 +109,32 @@ public class OrderServiceImpl implements OrderService {
         cartRepository.save(cart);
 
         return savedOrder;
+    }
+
+    private void setShippingAddress(Order order, User buyer, UUID addressId,
+            com.farmconnect.payload.request.AddressRequest newAddress) {
+        com.farmconnect.model.Address shippingAddress;
+
+        if (addressId != null) {
+            com.farmconnect.model.SavedAddress saved = addressRepository.findById(addressId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Saved address not found"));
+            if (!saved.getUser().getId().equals(buyer.getId())) {
+                throw new RuntimeException("Unauthorized to use this address");
+            }
+            shippingAddress = saved.getAddress();
+        } else if (newAddress != null) {
+            shippingAddress = com.farmconnect.model.Address.builder()
+                    .street(newAddress.getStreet())
+                    .city(newAddress.getCity())
+                    .state(newAddress.getState())
+                    .zipCode(newAddress.getZipCode())
+                    .country(newAddress.getCountry())
+                    .build();
+        } else {
+            throw new IllegalArgumentException("Shipping address is required");
+        }
+
+        order.setShippingAddress(shippingAddress);
     }
 
     private OrderItem processOrderItem(Order order, Product product, int quantity, double price) {

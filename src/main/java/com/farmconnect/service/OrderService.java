@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 public interface OrderService {
-    Order createOrder(com.farmconnect.payload.request.OrderRequest orderRequest, User buyer);
 
     List<Order> getOrdersByBuyer(UUID buyerId);
 
     Order cancelOrder(UUID orderId);
 
-    Order createOrderFromCart(User buyer);
+    Order createOrderFromCart(User buyer, com.farmconnect.payload.request.CheckoutRequest checkoutRequest);
 
     java.util.List<com.farmconnect.model.OrderItem> getSalesByFarmer(java.util.UUID farmerId);
 }

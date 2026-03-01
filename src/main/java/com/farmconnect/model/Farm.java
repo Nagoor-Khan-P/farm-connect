@@ -35,6 +35,7 @@ public class Farm {
     @JoinColumn(name = "farmer_id", nullable = false)
     private User farmer;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "farm", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 }

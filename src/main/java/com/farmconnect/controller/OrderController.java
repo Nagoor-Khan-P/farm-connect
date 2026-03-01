@@ -3,7 +3,6 @@ package com.farmconnect.controller;
 import com.farmconnect.model.Order;
 import com.farmconnect.model.OrderItem;
 import com.farmconnect.model.User;
-import com.farmconnect.payload.request.OrderRequest;
 import com.farmconnect.security.services.UserDetailsImpl;
 import com.farmconnect.service.OrderService;
 import com.farmconnect.repository.UserRepository;
@@ -54,31 +53,16 @@ public class OrderController {
         return ResponseEntity.ok(canceledOrder);
     }
 
-    @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
-                .getPrincipal();
-        User buyer = userRepository.findById(userDetails.getId()).orElse(null);
-
-        try {
-            Order order = orderService.createOrder(orderRequest, buyer);
-            return ResponseEntity.ok(order);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/checkout")
     @PreAuthorize("hasAuthority('ROLE_BUYER')")
-    public ResponseEntity<?> checkout() {
+    public ResponseEntity<?> checkout(@RequestBody com.farmconnect.payload.request.CheckoutRequest checkoutRequest) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         User buyer = userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         try {
-            Order order = orderService.createOrderFromCart(buyer);
+            Order order = orderService.createOrderFromCart(buyer, checkoutRequest);
             return ResponseEntity.ok(order);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
