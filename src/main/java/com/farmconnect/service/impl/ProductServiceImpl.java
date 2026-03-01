@@ -11,6 +11,8 @@ import com.farmconnect.payload.request.ProductRequest;
 import com.farmconnect.payload.response.ProductResponse;
 import com.farmconnect.service.FileStorageService;
 import com.farmconnect.service.ProductService;
+import com.farmconnect.service.RatingService;
+import com.farmconnect.model.Rating;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,12 +26,14 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final FarmRepository farmRepository;
     private final FileStorageService fileStorageService;
+    private final RatingService ratingService;
 
     public ProductServiceImpl(ProductRepository productRepository, FarmRepository farmRepository,
-            FileStorageService fileStorageService) {
+            FileStorageService fileStorageService, RatingService ratingService) {
         this.productRepository = productRepository;
         this.farmRepository = farmRepository;
         this.fileStorageService = fileStorageService;
+        this.ratingService = ratingService;
     }
 
     @Override
@@ -164,6 +168,8 @@ public class ProductServiceImpl implements ProductService {
         User farmer = product.getFarm().getFarmer();
         response.setFarmerName(farmer.getFirstName() + " " + farmer.getLastName());
         response.setImageUrl(product.getImageUrl());
+        response.setAverageRating(ratingService.getAverageRating(product.getId(), Rating.TargetType.PRODUCT));
+        response.setRatingCount(ratingService.getRatingCount(product.getId(), Rating.TargetType.PRODUCT).intValue());
         return response;
     }
 }

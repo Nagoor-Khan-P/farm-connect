@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/farmers/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/ratings/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         // POST later)
                         .requestMatchers("/h2-console/**").permitAll()

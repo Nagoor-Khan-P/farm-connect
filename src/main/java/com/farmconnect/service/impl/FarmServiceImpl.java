@@ -10,6 +10,8 @@ import com.farmconnect.service.FarmService;
 import com.farmconnect.payload.request.FarmRequest;
 import com.farmconnect.payload.response.FarmResponse;
 import com.farmconnect.service.FileStorageService;
+import com.farmconnect.service.RatingService;
+import com.farmconnect.model.Rating;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,10 +23,13 @@ public class FarmServiceImpl implements FarmService {
 
     private final FarmRepository farmRepository;
     private final FileStorageService fileStorageService;
+    private final RatingService ratingService;
 
-    public FarmServiceImpl(FarmRepository farmRepository, FileStorageService fileStorageService) {
+    public FarmServiceImpl(FarmRepository farmRepository, FileStorageService fileStorageService,
+            RatingService ratingService) {
         this.farmRepository = farmRepository;
         this.fileStorageService = fileStorageService;
+        this.ratingService = ratingService;
     }
 
     @Override
@@ -101,6 +106,8 @@ public class FarmServiceImpl implements FarmService {
                 .description(farm.getDescription())
                 .farmerUsername(farm.getFarmer().getUsername())
                 .imageUrl(farm.getImageUrl())
+                .averageRating(ratingService.getAverageRating(farm.getId(), Rating.TargetType.FARM))
+                .ratingCount(ratingService.getRatingCount(farm.getId(), Rating.TargetType.FARM).intValue())
                 .build();
     }
 }

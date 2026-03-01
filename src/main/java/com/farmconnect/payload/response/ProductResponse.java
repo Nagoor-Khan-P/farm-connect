@@ -23,4 +23,6 @@ public class ProductResponse {
     private UUID farmId;
     private String farmName;
     private String farmerName;
+    private double averageRating;
+    private int ratingCount;
 }

@@ -75,6 +75,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(signupRequest.getEmail())
                 .password(encoder.encode(signupRequest.getPassword()))
                 .role(signupRequest.getRole())
+                .createdAt(java.time.Instant.now())
                 .build();
 
         userRepository.save(user);

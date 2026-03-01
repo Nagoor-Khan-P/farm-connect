@@ -47,6 +47,8 @@ public class FarmerServiceImpl implements FarmerService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .registeredDate(user.getCreatedAt())
+                .profileImage(user.getProfileImage())
                 .build();
     }
 }

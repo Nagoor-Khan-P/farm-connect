@@ -19,4 +19,6 @@ public class FarmResponse {
     private String description;
     private String farmerUsername;
     private String imageUrl;
+    private double averageRating;
+    private int ratingCount;
 }

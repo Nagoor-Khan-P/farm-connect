@@ -42,4 +42,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<SavedAddress> addresses;
+
+    private java.time.Instant createdAt;
+    private String profileImage;
 }
