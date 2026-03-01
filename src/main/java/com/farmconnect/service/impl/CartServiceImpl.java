@@ -110,6 +110,28 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
+    public CartResponse decreaseQuantity(UUID userId, UUID cartItemId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        CartItem item = cart.getItems().stream()
+                .filter(i -> i.getId().equals(cartItemId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Cart item not found"));
+
+        if (item.getQuantity() > 1) {
+            item.setQuantity(item.getQuantity() - 1);
+        } else {
+            cart.getItems().remove(item);
+        }
+
+        updateCartTotal(cart);
+        Cart savedCart = cartRepository.save(cart);
+        return mapToResponse(savedCart);
+    }
+
+    @Override
+    @Transactional
     public void clearCart(UUID userId) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
@@ -142,6 +164,14 @@ public class CartServiceImpl implements CartService {
         response.setQuantity(item.getQuantity());
         response.setPrice(item.getPrice());
         response.setSubTotal(item.getPrice() * item.getQuantity());
+        response.setImageUrl(item.getProduct().getImageUrl());
+        if (item.getProduct().getFarm() != null) {
+            response.setFarmName(item.getProduct().getFarm().getName());
+            if (item.getProduct().getFarm().getFarmer() != null) {
+                User farmer = item.getProduct().getFarm().getFarmer();
+                response.setFarmerName(farmer.getFirstName() + " " + farmer.getLastName());
+            }
+        }
         return response;
     }
 }

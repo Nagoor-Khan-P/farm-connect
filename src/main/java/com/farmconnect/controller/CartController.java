@@ -42,6 +42,14 @@ public class CartController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/decrease/{cartItemId}")
+    public ResponseEntity<CartResponse> decreaseQuantity(@AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable UUID cartItemId) {
+        System.out.println("Decreasing quantity for item: " + cartItemId);
+        CartResponse cart = cartService.decreaseQuantity(userDetails.getId(), cartItemId);
+        return ResponseEntity.ok(cart);
+    }
+
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearCart(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         cartService.clearCart(userDetails.getId());

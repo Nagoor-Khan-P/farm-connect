@@ -11,4 +11,7 @@ public class CartItemResponse {
     private int quantity;
     private double price;
     private double subTotal;
+    private String imageUrl;
+    private String farmName;
+    private String farmerName;
 }
