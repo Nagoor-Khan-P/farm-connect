@@ -39,4 +39,7 @@ public class User {
 
     @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<Farm> farms;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<SavedAddress> addresses;
 }
