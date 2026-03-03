@@ -76,4 +76,27 @@ public class OrderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/item/{itemId}/status")
+    @PreAuthorize("hasRole('FARMER')")
+    public ResponseEntity<?> updateOrderItemStatus(@PathVariable UUID itemId,
+            @RequestParam com.farmconnect.model.OrderStatus status) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+
+        // Security check: ensure the farmer owns the product in this OrderItem
+        List<OrderItem> farmerSales = orderService.getSalesByFarmer(userDetails.getId());
+        boolean ownsItem = farmerSales.stream().anyMatch(item -> item.getId().equals(itemId));
+
+        if (!ownsItem) {
+            return ResponseEntity.status(403).body("Unauthorized: You do not own this product.");
+        }
+
+        try {
+            Order updatedOrder = orderService.updateOrderItemStatus(itemId, status);
+            return ResponseEntity.ok(updatedOrder);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

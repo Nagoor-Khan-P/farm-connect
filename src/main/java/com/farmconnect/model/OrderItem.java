@@ -29,6 +29,9 @@ public class OrderItem {
     private Product product;
 
     private int quantity;
-
     private double price;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private OrderStatus status = OrderStatus.PENDING;
 }

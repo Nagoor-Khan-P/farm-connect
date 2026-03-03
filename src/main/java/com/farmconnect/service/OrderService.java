@@ -19,4 +19,6 @@ public interface OrderService {
     Order createOrderFromCart(User buyer, com.farmconnect.payload.request.CheckoutRequest checkoutRequest);
 
     List<com.farmconnect.model.OrderItem> getSalesByFarmer(UUID farmerId);
+
+    Order updateOrderItemStatus(UUID orderItemId, com.farmconnect.model.OrderStatus status);
 }

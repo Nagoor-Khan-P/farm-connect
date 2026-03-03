@@ -158,7 +158,36 @@ public class OrderServiceImpl implements OrderService {
                 .product(product)
                 .quantity(quantity)
                 .price(price)
+                .status(OrderStatus.PENDING)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public Order updateOrderItemStatus(UUID orderItemId, OrderStatus status) {
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order item not found"));
+
+        orderItem.setStatus(status);
+        orderItemRepository.save(orderItem);
+
+        Order order = orderItem.getOrder();
+        updateOrderStatusBasedOnItems(order);
+
+        return orderRepository.save(order);
+    }
+
+    private void updateOrderStatusBasedOnItems(Order order) {
+        boolean allShipped = order.getItems().stream()
+                .allMatch(item -> item.getStatus() == OrderStatus.SHIPPED || item.getStatus() == OrderStatus.DELIVERED);
+        boolean allDelivered = order.getItems().stream()
+                .allMatch(item -> item.getStatus() == OrderStatus.DELIVERED);
+
+        if (allDelivered) {
+            order.setStatus(OrderStatus.DELIVERED);
+        } else if (allShipped) {
+            order.setStatus(OrderStatus.SHIPPED);
+        }
     }
 
     @Override
