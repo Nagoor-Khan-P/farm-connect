@@ -24,7 +24,6 @@ public class WishlistController {
     }
 
     @PostMapping("/add/{productId}")
-    @PreAuthorize("hasRole('BUYER')")
     public ResponseEntity<WishlistResponse> addToWishlist(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID productId) {
@@ -32,13 +31,11 @@ public class WishlistController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('BUYER')")
     public ResponseEntity<WishlistResponse> getWishlist(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(wishlistService.getWishlist(userDetails.getId()));
     }
 
     @DeleteMapping("/remove/{wishlistItemId}")
-    @PreAuthorize("hasRole('BUYER')")
     public ResponseEntity<MessageResponse> removeFromWishlist(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID wishlistItemId) {
@@ -47,7 +44,6 @@ public class WishlistController {
     }
 
     @PostMapping("/move-to-cart/{wishlistItemId}")
-    @PreAuthorize("hasRole('BUYER')")
     public ResponseEntity<CartResponse> moveToCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable UUID wishlistItemId) {

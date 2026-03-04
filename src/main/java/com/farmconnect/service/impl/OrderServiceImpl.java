@@ -192,6 +192,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderItem> getSalesByFarmer(UUID farmerId) {
-        return orderItemRepository.findByProductFarmFarmerId(farmerId);
+        return orderItemRepository.findByProductFarmFarmerIdOrderByOrderOrderDateDesc(farmerId);
     }
 }
